@@ -683,6 +683,7 @@ function content_model_viewer_add_datastream($pid) {
       }
     } catch (Exception $e) {
 // log some error...
+    dsm('herp derp error');
     }
   }
   $message = $success ? t('Successfully added datastream.') : t('Failed to add datastream.');
