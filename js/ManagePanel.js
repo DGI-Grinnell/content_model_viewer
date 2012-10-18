@@ -437,7 +437,7 @@ Ext.onReady(function(){
               dsid.set({
                 value: record.get('dsid')
                 });
-              var action = form.down('input[name="action"]');
+              var action = form.down('input[name="formaction"]');
               action.set({
                 value: 'edit'
               });

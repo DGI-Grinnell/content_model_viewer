@@ -344,8 +344,11 @@ function content_model_viewer_get_registered_content_model_viewer($pid) {
  *   TRUE if there is a registered Content Model Viewer.
  */
 function content_model_viewer_has_registered_content_model_viewer($pid) {
+  dfb( $pid, "content_model_viewer_has_registered_content_model_viewer has been called with pid", FirePHP::LOG );
   $model_pid = content_model_viewer_get_content_model_pid($pid);
+  dfb( $model_pid, "content_model_viewer_has_registered_content_model_viewer - model_pid", FirePHP::LOG );
   $models = module_invoke_all('register_content_models_for_viewer');
+  dfb( $models, "content_model_viewer_has_registered_content_model_viewer - models", FirePHP::LOG );
   foreach ($models as $key => $model) {
     if ($key == $model_pid) {
       return TRUE;
@@ -453,14 +456,19 @@ function template_preprocess_content_model_viewer(array &$variables) {
  * @param string $pid
  */
 function content_model_viewer($pid = NULL) {
+
+   dfb( $pid, 'content_model_viewer has been called', FirePHP::LOG );
+
   module_load_include('inc', 'fedora_repository', 'api/fedora_utils');
   module_load_include('inc', 'fedora_repository', 'api/fedora_item');
   // Copied from islandora.
   if (!fedora_available()) {
+    dfb( $pid, 'content_model_viewer - Fedora is unavailable', FirePHP::WARN );
     drupal_set_message(t('The Fedora repository server is currently unavailable. Please contact the site administrator.'), 'warning', FALSE);
     return '';
   }
   if (function_exists('risearch_available') && !risearch_available()) {
+    dfb( $pid, 'content_model_viewer - Fedora resource index search is unavailable', FirePHP::WARN );
     drupal_set_message(t('The Fedora resource index search is currently unavailable. Please contact the site administrator.'), 'warning', FALSE);
     return '';
   }
@@ -474,6 +482,7 @@ function content_model_viewer($pid = NULL) {
   }
   // End of COPY
   if (!content_model_viewer_has_registered_content_model_viewer($pid)) {
+    dfb( $pid, 'content_model_viewer - No content model viewer registered for pid', FirePHP::ERROR );
     //Push the call off to Islandora.
     return call_user_func_array('repository_page', func_get_args());
   }
@@ -489,8 +498,8 @@ function content_model_viewer($pid = NULL) {
   // End Add Bread Crumbs
   $path = drupal_get_path('module', 'content_model_viewer');
   $js_path = $path . '/js';
-  if (isset($_POST['action'])) { // Render Metadata Form
-    $action = $_POST['action'];
+  if (isset($_POST['formaction'])) { // Render Metadata Form
+    $action = $_POST['formaction'];
     drupal_add_js($js_path . '/Form.js');
     return theme('content_model_viewer_metadata_form', $pid, $action);
   }
@@ -837,7 +846,7 @@ function content_model_viewer_edit_metadata_form(array &$form_state, $pid) {
   try {
     $edit_form = new EditObjectMetadataForm();
     $output = $edit_form->create($pid, $client, $form_state);
-    $output['action'] = array(
+    $output['formaction'] = array(
       '#type' => 'hidden',
       '#value' => 'edit'
     );
@@ -907,7 +916,7 @@ function content_model_viewer_ingest_metadata_form(array &$form_state, $collecti
   try {
     $ingest_form = new IngestObjectMetadataForm();
     $output = $ingest_form->create($collection_pid, NULL, $form_state);
-    $output['action'] = array(
+    $output['formaction'] = array(
       '#type' => 'hidden',
       '#value' => 'ingest'
     );

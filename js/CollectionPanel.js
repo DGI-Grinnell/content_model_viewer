@@ -87,7 +87,7 @@ Ext.onReady(function(){
           form.set({
             action: window.location // Same Spot.
           });
-          var action = form.down('input[name="action"]');
+          var action = form.down('input[name="formaction"]');
           action.set({
             value: 'ingest'
           });
